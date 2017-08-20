@@ -4,5 +4,7 @@
     require('angular');
     require('bootstrap');
 
-    angular.module('mediaAppVodApp', []);
+    var mediaAppVodApp = angular.module('mediaAppVodApp', []);
+    require('./services/MovieManager')(mediaAppVodApp);
+    require('./controllers/movieListController.js')(mediaAppVodApp);
 })();

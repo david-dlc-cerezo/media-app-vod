@@ -6993,15 +6993,19 @@ return jQuery;
 /* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
-(function(){
+"use strict";
+
+
+(function () {
     'use strict';
 
     __webpack_require__(63);
     __webpack_require__(64);
 
-    angular.module('mediaAppVodApp', []);
+    var mediaAppVodApp = angular.module('mediaAppVodApp', []);
+    __webpack_require__(104)(mediaAppVodApp);
+    __webpack_require__(105)(mediaAppVodApp);
 })();
-
 
 /***/ }),
 /* 63 */
@@ -48097,6 +48101,70 @@ if ( !noGlobal ) {
 }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
+
+/***/ }),
+/* 104 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+(function () {
+  'use strict';
+
+  module.exports = function (mediaAppVodApp) {
+    /**
+     * @ngdoc service
+     * @name mediaAppVodApp.MovieManager
+     * @description
+     * # MovieManager
+     * Factory in the mediaAppVodApp.
+     */
+    mediaAppVodApp.factory('MovieManager', ['$http', '$q', MovieManager]);
+  };
+
+  function MovieManager($http, $q) {
+
+    // Public API here
+    return {
+      getMovies: function getMovies() {
+        var deferred = $q.defer();
+        $http.get('https://demo2697834.mockable.io/movies').then(function (response) {
+          deferred.resolve(response.data);
+        }).catch(deferred.reject);
+        return deferred.promise;
+      }
+    };
+  }
+})();
+
+/***/ }),
+/* 105 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+(function () {
+  'use strict';
+
+  module.exports = function (mediaAppVodApp) {
+    /**
+     * @ngdoc function
+     * @name mediaAppVodApp.controller:MovielistcontrollerCtrl
+     * @description
+     * # MovielistcontrollerCtrl
+     * Controller of the mediaAppVodApp
+     */
+    mediaAppVodApp.controller('movielistcontrollerCtrl', ['MovieManager', movielistcontrollerCtrl]);
+  };
+
+  function movielistcontrollerCtrl(MovieManager) {
+    MovieManager.getMovies().then(function (data) {
+      console.log(data);
+    });
+  }
+})();
 
 /***/ })
 /******/ ]);

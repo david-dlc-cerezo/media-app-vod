@@ -18,13 +18,9 @@
   <!-- build:css styles/main.css -->
   <link rel="stylesheet" href="styles/main.css">
   <!-- endbuild -->
-
-  <!-- build:js scripts/vendor/modernizr.js -->
-  <script src="/bower_components/modernizr/modernizr.js"></script>
-  <!-- endbuild -->
 </head>
 
-<body>
+<body ng-app="mediaAppVodApp">
   <!--[if IE]>
       <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
@@ -41,7 +37,7 @@
       </div>
     </nav>
   </div>
-  <div class="container">
+  <div class="container" ng-controller="movielistcontrollerCtrl">
     <div class="jumbotron">
       <h1>'Allo, 'Allo!</h1>
       <p class="lead">Always a pleasure scaffolding your apps.</p>
