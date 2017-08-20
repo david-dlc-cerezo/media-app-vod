@@ -36,6 +36,13 @@ gulp.task('scripts', () => {
     .pipe(reload({stream: true}));
 });
 
+const webpack = require('webpack-stream');
+gulp.task('webpack', function() {
+  return gulp.src('app/scripts/main.js')
+    .pipe(webpack( require('./webpack.config.js') ))
+    .pipe(gulp.dest('./'));
+});
+
 function lint(files) {
   return gulp.src(files)
     .pipe($.eslint({ fix: true }))
@@ -95,7 +102,7 @@ gulp.task('extras', () => {
 gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 
 gulp.task('serve', () => {
-  runSequence(['clean', 'wiredep'], ['styles', 'scripts', 'fonts'], () => {
+  runSequence(['clean', 'wiredep'], ['styles', 'webpack', 'fonts'], () => {
     browserSync.init({
       notify: false,
       port: 9000,
@@ -110,11 +117,12 @@ gulp.task('serve', () => {
     gulp.watch([
       'app/*.html',
       'app/images/**/*',
-      '.tmp/fonts/**/*'
+      'app/scripts/main.bundle.js',
+      '.tmp/fonts/**/*',
     ]).on('change', reload);
 
     gulp.watch('app/styles/**/*.scss', ['styles']);
-    gulp.watch('app/scripts/**/*.js', ['scripts']);
+    gulp.watch(['app/scripts/**/*.js', '!app/scripts/main.bundle.js'], ['webpack']);
     gulp.watch('app/fonts/**/*', ['fonts']);
     gulp.watch('bower.json', ['wiredep', 'fonts']);
   });
