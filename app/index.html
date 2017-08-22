@@ -17,6 +17,7 @@
 
   <!-- build:css styles/main.css -->
   <link rel="stylesheet" href="styles/main.css">
+  <script src="scripts/services/movie.js"></script>
   <!-- endbuild -->
 </head>
 
@@ -28,16 +29,17 @@
     <nav class="navbar navbar-inverse">
       <div class="container-fluid">
         <div class="navbar-header">
-          <a class="navbar-brand" href="#">Movies App VOD</a>
+          <a class="navbar-brand" ui-sref="list">Movies App VOD <i class="fa fa-fw fa-lg fa-play-circle-o"></i></a>
         </div>
         <nav>
           <ul class="nav navbar-nav navbar-right">
-            <li ng-class="{ 'active': true }"><a href="#!/history">History</a></li>
+            <li><a ui-sref="history" ui-sref-active="active">History</a></li>
           </ul>
         </nav>
       </div>
   </header>
-  <main class="container" ng-controller="movielistcontrollerCtrl">
+  <main class="container-fluid">
+      <ui-view></ui-view>
   </main>
   <footer class="container-fluid">
     <div class="footer">

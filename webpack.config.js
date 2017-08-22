@@ -7,9 +7,10 @@ module.exports = {
   resolve: {
     modules: ['bower_components', 'node_modules'],
     descriptionFiles: ['bower.json', 'package.json'],
-    alias: {
+    alias: {'angular-slick-carousel': 'angular-slick-carousel/src/slick.js',
+      'bootstrap': 'bootstrap-sass/assets/javascripts/bootstrap',
       'jquery': 'jquery/src/jquery',
-      'bootstrap': 'bootstrap-sass/assets/javascripts/bootstrap'
+      'slick-carousel': 'slick-carousel/slick/slick.js',
     }
   },
   plugins: [
@@ -29,5 +30,6 @@ module.exports = {
         }
       }
     }]
-  }
+  },
+  devtool: 'cheap-source-map'
 };

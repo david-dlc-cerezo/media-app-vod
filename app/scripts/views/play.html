@@ -1,0 +1,13 @@
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal" ng-click="vm.cancel()">&times;</button>
+  <h4 class="modal-title">{{movie.title}}</h4>
+</div>
+<div class="modal-body text-center">
+  <video width="{{movie.video.width}}" height="{{movie.video.height}}" controls autoplay>
+    <source ng-src="{{movie.video.url}}" type="video/{{movie.video.format}}">
+     Your browser does not support the video tag.
+ </video>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.cancel()">Close</button>
+</div>

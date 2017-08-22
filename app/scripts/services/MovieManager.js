@@ -12,11 +12,12 @@
     mediaAppVodApp.factory('MovieManager', [
       '$http',
       '$q',
+      'Movie',
       MovieManager
     ]);
   };
 
-  function MovieManager($http, $q) {
+  function MovieManager($http, $q, Movie) {
 
     // Public API here
     return {
@@ -24,7 +25,11 @@
         var deferred = $q.defer();
         $http.get('https://demo2697834.mockable.io/movies')
             .then((response) => {
-                deferred.resolve(response.data);
+                var movieList = [];
+                angular.forEach(response.data.entries, (movieData) => {
+                    movieList.push(new Movie(movieData));
+                });
+                deferred.resolve(movieList);
             })
             .catch(deferred.reject);
         return deferred.promise;
