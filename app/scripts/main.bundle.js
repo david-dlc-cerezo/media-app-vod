@@ -40909,6 +40909,8 @@ return jQuery;
   __webpack_require__(110)(mediaAppVodApp);
   __webpack_require__(111)(mediaAppVodApp);
   __webpack_require__(112)(mediaAppVodApp);
+  __webpack_require__(113)(mediaAppVodApp);
+  __webpack_require__(114)(mediaAppVodApp);
 })();
 
 /***/ }),
@@ -68951,7 +68953,7 @@ angular
             var slickness = angular.element(element);
             if (slickness.hasClass('slick-initialized')) {
               slickness.remove('slick-list');
-              slickness.slick('unslick');
+              $(slickness).slick('unslick');
             }
 
             return slickness;
@@ -68964,7 +68966,7 @@ angular
 
             if (angular.element(element).hasClass('slick-initialized')) {
               if (options.enabled) {
-                return slickness.slick('getSlick');
+                return $(slickness).slick('getSlick');
               } else {
                 destroy();
               }
@@ -68996,7 +68998,7 @@ angular
                 var args;
                 args = Array.prototype.slice.call(arguments);
                 args.unshift(value);
-                slickness.slick.apply(element, args);
+                $(slickness).slick.apply(element, args);
               };
             });
 
@@ -69134,7 +69136,7 @@ angular
 
   module.exports = function (mediaAppVodApp) {
     /**
-     * @ngdoc service
+     * Helps to Manage a Movie collection
      * @name mediaAppVodApp.MovieManager
      * @description
      * # MovieManager
@@ -69147,15 +69149,51 @@ angular
 
     // Public API here
     return {
+
+      /**
+       * Movie List with last retrieved available movies
+       * @type {Movie[]}
+       */
+      movieList: [],
+
+      /**
+       * Get the list of available movies from the API
+       * @return {Movie[]} Movie List with the available movies
+       */
       getMovies: function getMovies() {
+        var _this = this;
+
         var deferred = $q.defer();
         $http.get('https://demo2697834.mockable.io/movies').then(function (response) {
-          var movieList = [];
+          _this.movieList = [];
           angular.forEach(response.data.entries, function (movieData) {
-            movieList.push(new Movie(movieData));
+            _this.movieList.push(new Movie(movieData));
           });
-          deferred.resolve(movieList);
+          deferred.resolve(_this.movieList);
         }).catch(deferred.reject);
+        return deferred.promise;
+      },
+
+
+      /**
+       * Get a single movie object by its ID
+       * @param  {String}  movieId Movie ID to search
+       * @return {Promise}         Resolves with the Found Movie if any
+       */
+      getMovieById: function getMovieById(movieId) {
+        var deferred = $q.defer();
+        $q.when(this.movieList.length ? this.movieList : this.getMovies()).then(function (movieList) {
+          var movie;
+          for (var i in movieList) {
+            if (movieList[i].id === movieId) {
+              movie = movieList[i];
+              break;
+            }
+          }
+          deferred.resolve(movie);
+        }).catch(function () {
+          deferred.resolve();
+        });
         return deferred.promise;
       }
     };
@@ -69174,7 +69212,87 @@ angular
 
   module.exports = function (mediaAppVodApp) {
     /**
-     * @ngdoc service
+     * Helps to manage the Viewed Movie History
+     * @name mediaAppVodApp.HistoryManager
+     * @description
+     * # HistoryManager
+     * Service in the mediaAppVodApp.
+     */
+    mediaAppVodApp.factory('HistoryManager', ['MovieManager', '$q', HistoryManager]);
+  };
+
+  function HistoryManager(MovieManager, $q) {
+    // Public API here
+    return {
+
+      /**
+       * Add movie to the history and saves it to the localStorage
+       * @param {Movie} movie Viewed movie to add
+       */
+      addToHistory: function addToHistory(movie) {
+        var history = this.getHistory();
+        // If the movie is in the history remove it before add it again (at the begining of the array)
+        var index = history.indexOf(movie.id);
+        if (index >= 0) {
+          history.splice(index, 1);
+        }
+        // Add to the history & save
+        history.unshift(movie.id);
+        _saveHistory(history);
+      },
+
+
+      /**
+       * Get saved viewed movie history
+       * @return {String[]} Array with the ids of the viewedMovies (First is the most recently viewed and last)
+       */
+      getHistory: function getHistory() {
+        return JSON.parse(localStorage.getItem('viewedMovies')) || [];
+      },
+
+
+      /**
+       * Get saved viewed movie history with all movie details
+       * @return {Movie[]} An array of the viewed movies with Movie elements (First is the most recently viewed)
+       */
+      getHistoryWithMovieDetails: function getHistoryWithMovieDetails() {
+        var deferred = $q.defer();
+        var history = this.getHistory();
+        var promises = [];
+        for (var i = 0; i < history.length; i++) {
+          promises[i] = MovieManager.getMovieById(history[i]);
+        }
+        $q.all(promises).then(function (results) {
+          deferred.resolve(results);
+        }).catch(deferred.reject);
+        return deferred.promise;
+      }
+    };
+  }
+
+  /**
+   * Private functon to save viewed history on localStorage
+   * @param       {String[]} history History as an array of movies ID's
+   * @constructor
+   */
+  function _saveHistory(history) {
+    localStorage.setItem('viewedMovies', JSON.stringify(history));
+  }
+})();
+
+/***/ }),
+/* 111 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+(function () {
+  'use strict';
+
+  module.exports = function (mediaAppVodApp) {
+    /**
+     * Movie singleton
      * @name mediaAppVodApp.Movie
      * @description
      * # Movie
@@ -69190,17 +69308,24 @@ angular
     }
 
     Movie.prototype = {
+
+      /**
+       * Loads movie info from the raw movie data obtained with the API
+       * @param  {JSON} data Movie info from the API
+       */
       load: function load(data) {
         this.id = data.id;
         this.title = data.title;
         this.description = data.description;
-        for (var i in data.images) {
-          if (data.images[i].type === 'cover') {
-            this.cover = data.images[i].url;
-            break;
+        if (angular.isArray(data.images)) {
+          for (var i in data.images) {
+            if (data.images[i].type === 'cover') {
+              this.cover = data.images[i].url;
+              break;
+            }
           }
         }
-        this.video = data.contents[0];
+        this.video = angular.isArray(data.contents) ? data.contents[0] : undefined;
       }
     };
 
@@ -69209,7 +69334,61 @@ angular
 })();
 
 /***/ }),
-/* 111 */
+/* 112 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+(function () {
+  'use strict';
+
+  module.exports = function (mediaAppVodApp) {
+    /**
+     * Helps to Play a Movie
+     * @name mediaAppVodApp.MovieManager
+     * @description
+     * # MovieManager
+     * Factory in the mediaAppVodApp.
+     */
+    mediaAppVodApp.factory('Player', ['$uibModal', 'HistoryManager', Player]);
+  };
+
+  function Player($uibModal, HistoryManager) {
+    // Public API here
+    return {
+      /**
+       * Opens a modal with the video to play it
+       * @param  {Movie} movieToPlay Movie to play
+       */
+      play: function play(movieToPlay) {
+        console.log(movieToPlay);
+
+        // Open modal with the video
+        $uibModal.open({
+          animation: true,
+          ariaLabelledBy: 'modal-title',
+          ariaDescribedBy: 'modal-body',
+          templateUrl: 'scripts/views/play.html',
+          controller: function playCtrl($scope, $uibModalInstance) {
+            $scope.movie = movieToPlay;
+            this.cancel = function () {
+              $uibModalInstance.close();
+            };
+          },
+          controllerAs: 'vm',
+          size: 'lg'
+        });
+
+        // Add movie to history
+        HistoryManager.addToHistory(movieToPlay);
+      }
+    };
+  }
+})();
+
+/***/ }),
+/* 113 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -69231,7 +69410,7 @@ angular
         name: 'list',
         url: '/',
         templateUrl: 'scripts/views/list.html',
-        controller: movieListCtrl,
+        controller: ['movies', 'Player', movieListCtrl],
         controllerAs: 'vm',
         resolve: {
           movies: function movies(MovieManager) {
@@ -69242,7 +69421,7 @@ angular
     }]);
   };
 
-  function movieListCtrl(movies, $uibModal) {
+  function movieListCtrl(movies, Player) {
     return {
       movies: movies,
       slickConfig: {
@@ -69255,28 +69434,14 @@ angular
         centerMode: true,
         variableWidth: true
       },
-      play: function play(movie) {
-        $uibModal.open({
-          animation: true,
-          ariaLabelledBy: 'modal-title',
-          ariaDescribedBy: 'modal-body',
-          templateUrl: 'scripts/views/play.html',
-          controller: function playCtrl($scope, $uibModalInstance) {
-            $scope.movie = movie;
-            this.cancel = function () {
-              $uibModalInstance.dismiss('cancel');
-            };
-          },
-          controllerAs: 'vm',
-          size: 'lg'
-        });
-      }
+
+      play: Player.play
     };
   }
 })();
 
 /***/ }),
-/* 112 */
+/* 114 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -69293,19 +69458,31 @@ angular
      * # MovielistcontrollerCtrl
      * Controller of the mediaAppVodApp
      */
-    mediaAppVodApp.controller('movieHistoryCtrl', [movieHistoryCtrl]).config(['$stateProvider', function ($stateProvider) {
+    mediaAppVodApp.config(['$stateProvider', function ($stateProvider) {
       $stateProvider.state({
         name: 'history',
         url: '/history',
         templateUrl: 'scripts/views/history.html',
-        controller: 'movieHistoryCtrl',
+        controller: ['HistoryManager', 'Player', MovieHistoryCtrl],
         controllerAs: 'vm'
       });
     }]);
   };
 
-  function movieHistoryCtrl() {
-    console.log('movieHistoryCtrl');
+  function MovieHistoryCtrl(HistoryManager, Player) {
+    angular.extend(this, {
+      history: [],
+      play: Player.play,
+      getHistoryWithMovieDetails: function getHistoryWithMovieDetails() {
+        var _this = this;
+
+        HistoryManager.getHistoryWithMovieDetails().then(function (result) {
+          _this.history = result;
+        });
+      }
+    });
+
+    this.getHistoryWithMovieDetails();
   }
 })();
 

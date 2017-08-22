@@ -16,7 +16,11 @@
           name: 'list',
           url: '/',
           templateUrl: 'scripts/views/list.html',
-          controller: movieListCtrl,
+          controller: [
+            'movies',
+            'Player',
+            movieListCtrl
+          ],
           controllerAs: 'vm',
           resolve: {
             movies: function(MovieManager) {
@@ -29,7 +33,7 @@
   };
 
 
-  function movieListCtrl(movies, $uibModal) {
+  function movieListCtrl(movies, Player) {
     return {
       movies: movies,
       slickConfig: {
@@ -42,22 +46,8 @@
         centerMode: true,
         variableWidth: true
       },
-      play(movie) {
-        $uibModal.open({
-          animation: true,
-          ariaLabelledBy: 'modal-title',
-          ariaDescribedBy: 'modal-body',
-          templateUrl: 'scripts/views/play.html',
-          controller: function playCtrl($scope, $uibModalInstance) {
-            $scope.movie = movie;
-            this.cancel = function() {
-              $uibModalInstance.dismiss('cancel');
-            };
-          },
-          controllerAs: 'vm',
-          size: 'lg'
-        });
-      }
+
+      play: Player.play
     };
   }
 })();

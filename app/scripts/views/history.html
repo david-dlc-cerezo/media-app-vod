@@ -1,1 +1,14 @@
-History
+<h2>History</h2>
+<p class="text-muted">Viewed movies</p>
+<table class="table table-striped">
+  <tbody>
+    <tr ng-repeat="movie in vm.history">
+      <td>{{movie.title}}</td>
+      <td>
+        <a ng-click="vm.play(movie)">
+            <i class="fa fa-fw fa-lg fa-play-circle-o" title="Play again"></i>View again
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table>

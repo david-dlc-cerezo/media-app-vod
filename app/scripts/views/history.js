@@ -9,24 +9,36 @@
      * # MovielistcontrollerCtrl
      * Controller of the mediaAppVodApp
      */
-    mediaAppVodApp.controller('movieHistoryCtrl', [
-        movieHistoryCtrl
-      ])
-      .config([
-          '$stateProvider',
-          function($stateProvider){
-              $stateProvider.state({
-                  name: 'history',
-                  url: '/history',
-                  templateUrl: 'scripts/views/history.html',
-                  controller: 'movieHistoryCtrl',
-                  controllerAs: 'vm'
-              });
-          }]);
+    mediaAppVodApp.config([
+      '$stateProvider',
+      function($stateProvider) {
+        $stateProvider.state({
+          name: 'history',
+          url: '/history',
+          templateUrl: 'scripts/views/history.html',
+          controller: [
+            'HistoryManager',
+            'Player',
+            MovieHistoryCtrl
+          ],
+          controllerAs: 'vm'
+        });
+      }
+    ]);
   };
 
+  function MovieHistoryCtrl(HistoryManager, Player) {
+    angular.extend(this, {
+      history: [],
+      play: Player.play,
+      getHistoryWithMovieDetails: function() {
+        HistoryManager.getHistoryWithMovieDetails()
+          .then((result) => {
+            this.history = result;
+          });
+      }
+    });
 
-  function movieHistoryCtrl() {
-    console.log('movieHistoryCtrl');
+    this.getHistoryWithMovieDetails();
   }
 })();
