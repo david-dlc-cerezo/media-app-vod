@@ -24,8 +24,8 @@
 
   require('./services/MovieManager')(mediaAppVodApp);
   require('./services/HistoryManager')(mediaAppVodApp);
-  require('./services/Movie')(mediaAppVodApp);
   require('./services/Player')(mediaAppVodApp);
+  require('./services/Movie')(mediaAppVodApp);
   require('./views/list')(mediaAppVodApp);
   require('./views/history')(mediaAppVodApp);
 })();

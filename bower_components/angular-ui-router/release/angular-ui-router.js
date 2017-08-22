@@ -9711,6 +9711,10 @@ function $ViewDirectiveFill($compile, $controller, $transitions, $view, $q$$1, $
                 }
                 var cfg = data.$cfg || { viewDecl: {}, getTemplate: ng_from_import.noop };
 
+                // in some cases, `data.$cfg` is passed but `getTemplate` is still undefined
+                // if thats the case, just return out. Setting `noop` does not work in this case.
+                if(!cfg.getTemplate) return;
+
                 var resolveCtx = cfg.path && new ResolveContext(cfg.path);
                 $element.html(cfg.getTemplate($element, resolveCtx) || initial);
                 trace.traceUIViewFill(data.$uiView, $element.html());

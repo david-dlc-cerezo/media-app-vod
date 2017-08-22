@@ -24,7 +24,6 @@
        * @param  {Movie} movieToPlay Movie to play
        */
       play(movieToPlay) {
-          console.log(movieToPlay);
 
         // Open modal with the video
         $uibModal.open({

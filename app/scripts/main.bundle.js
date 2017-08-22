@@ -57831,6 +57831,10 @@ function $ViewDirectiveFill($compile, $controller, $transitions, $view, $q$$1, $
                 }
                 var cfg = data.$cfg || { viewDecl: {}, getTemplate: ng_from_import.noop };
 
+                // in some cases, `data.$cfg` is passed but `getTemplate` is still undefined
+                // if thats the case, just return out. Setting `noop` does not work in this case.
+                if(!cfg.getTemplate) return;
+
                 var resolveCtx = cfg.path && new ResolveContext(cfg.path);
                 $element.html(cfg.getTemplate($element, resolveCtx) || initial);
                 trace.traceUIViewFill(data.$uiView, $element.html());
@@ -69292,13 +69296,66 @@ angular
 
   module.exports = function (mediaAppVodApp) {
     /**
+     * Helps to Play a Movie
+     * @name mediaAppVodApp.MovieManager
+     * @description
+     * # MovieManager
+     * Factory in the mediaAppVodApp.
+     */
+    mediaAppVodApp.factory('Player', ['$uibModal', 'HistoryManager', Player]);
+  };
+
+  function Player($uibModal, HistoryManager) {
+    // Public API here
+    return {
+      /**
+       * Opens a modal with the video to play it
+       * @param  {Movie} movieToPlay Movie to play
+       */
+      play: function play(movieToPlay) {
+
+        // Open modal with the video
+        $uibModal.open({
+          animation: true,
+          ariaLabelledBy: 'modal-title',
+          ariaDescribedBy: 'modal-body',
+          templateUrl: 'scripts/views/play.html',
+          controller: function playCtrl($scope, $uibModalInstance) {
+            $scope.movie = movieToPlay;
+            this.cancel = function () {
+              $uibModalInstance.close();
+            };
+          },
+          controllerAs: 'vm',
+          size: 'lg'
+        });
+
+        // Add movie to history
+        HistoryManager.addToHistory(movieToPlay);
+      }
+    };
+  }
+})();
+
+/***/ }),
+/* 112 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+(function () {
+  'use strict';
+
+  module.exports = function (mediaAppVodApp) {
+    /**
      * Movie singleton
      * @name mediaAppVodApp.Movie
      * @description
      * # Movie
      * Service in the mediaAppVodApp.
      */
-    mediaAppVodApp.service('Movie', [MovieService]);
+    mediaAppVodApp.service('Movie', MovieService);
   };
 
   function MovieService() {
@@ -69330,60 +69387,6 @@ angular
     };
 
     return Movie;
-  }
-})();
-
-/***/ }),
-/* 112 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-(function () {
-  'use strict';
-
-  module.exports = function (mediaAppVodApp) {
-    /**
-     * Helps to Play a Movie
-     * @name mediaAppVodApp.MovieManager
-     * @description
-     * # MovieManager
-     * Factory in the mediaAppVodApp.
-     */
-    mediaAppVodApp.factory('Player', ['$uibModal', 'HistoryManager', Player]);
-  };
-
-  function Player($uibModal, HistoryManager) {
-    // Public API here
-    return {
-      /**
-       * Opens a modal with the video to play it
-       * @param  {Movie} movieToPlay Movie to play
-       */
-      play: function play(movieToPlay) {
-        console.log(movieToPlay);
-
-        // Open modal with the video
-        $uibModal.open({
-          animation: true,
-          ariaLabelledBy: 'modal-title',
-          ariaDescribedBy: 'modal-body',
-          templateUrl: 'scripts/views/play.html',
-          controller: function playCtrl($scope, $uibModalInstance) {
-            $scope.movie = movieToPlay;
-            this.cancel = function () {
-              $uibModalInstance.close();
-            };
-          },
-          controllerAs: 'vm',
-          size: 'lg'
-        });
-
-        // Add movie to history
-        HistoryManager.addToHistory(movieToPlay);
-      }
-    };
   }
 })();
 

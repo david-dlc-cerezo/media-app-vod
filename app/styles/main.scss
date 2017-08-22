@@ -1,4 +1,6 @@
-$icon-font-path: '../fonts/'; // bower:scss
+$icon-font-path: '../fonts/';
+$fa-font-path: $icon-font-path;
+ // bower:scss
  @import "bower_components/bootstrap-sass/assets/stylesheets/_bootstrap.scss";
  @import "bower_components/slick-carousel/slick/slick.scss";
  @import "bower_components/font-awesome/scss/font-awesome.scss";
