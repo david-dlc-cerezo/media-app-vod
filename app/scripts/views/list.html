@@ -1,8 +1,8 @@
 <div class="row">
   <div class="col-xs-12">
     <slick settings="vm.slickConfig">
-      <div ng-repeat="movie in vm.movies" index="$index">
-        <div class="movie-data clearfix" ng-click="vm.play(movie)">
+      <div ng-repeat="movie in vm.movies" index="$index" ng-click="vm.play(movie)">
+        <div class="movie-data clearfix">
           <img ng-if="movie.cover" ng-src="{{movie.cover}}" ng-alt="movie.title" />
           <div class="movie-caption">
             <h4 class="movie-title">{{movie.title}}</h4>

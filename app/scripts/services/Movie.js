@@ -9,9 +9,7 @@
      * # Movie
      * Service in the mediaAppVodApp.
      */
-    mediaAppVodApp.service('Movie', [
-      MovieService
-    ]);
+    mediaAppVodApp.service('Movie', MovieService);
   };
 
   function MovieService() {
